@@ -526,19 +526,14 @@ module.exports = React.createClass({
     },
 
     _renderPasswordStep: function() {
-        const PasswordLogin = sdk.getComponent('login.PasswordLogin');
+        const UserOwnedLogin = sdk.getComponent('login.UserOwnedLogin');
         return (
-            <PasswordLogin
+            <UserOwnedLogin
                onSubmit={this.onPasswordLogin}
                onError={this.onPasswordLoginError}
-               initialUsername={this.state.username}
-               initialPhoneCountry={this.state.phoneCountry}
-               initialPhoneNumber={this.state.phoneNumber}
+               initialUsername={this.state.username}               
                onUsernameChanged={this.onUsernameChanged}
                onUsernameBlur={this.onUsernameBlur}
-               onPhoneCountryChanged={this.onPhoneCountryChanged}
-               onPhoneNumberChanged={this.onPhoneNumberChanged}
-               onForgotPasswordClick={this.props.onForgotPasswordClick}
                loginIncorrect={this.state.loginIncorrect}
                hsUrl={this.state.enteredHomeserverUrl}
                />
