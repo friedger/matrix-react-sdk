@@ -36,7 +36,8 @@ class UserOwnedLogin extends React.Component {
             challenge: undefined,
         };
 
-        this.onSubmitForm = this.onSubmitForm.bind(this);        
+        this.onSubmitForm = this.onSubmitForm.bind(this);   
+        this.onBlockstackSignoutClick = this.onBlockstackSignoutClick.bind(this);        
     }   
 
     componentDidMount() {
@@ -64,6 +65,7 @@ class UserOwnedLogin extends React.Component {
 
     onBlockstackSignoutClick(ev) {
         blockstack.signUserOut();
+        this.setState({userData: undefined});
     }
 
     onSubmitForm(ev) {
@@ -75,15 +77,21 @@ class UserOwnedLogin extends React.Component {
         );
     }
 
+    
     render() {
+        let username = "";
+        if (this.state && this.state.userData) {
+            username = this.state.userData.username;
+        }
         return (
             <div>
-                <button className="mx_Login_submit" onClick={this.onBlockstackLoginClick} disabled={!!this.state.userData} >
-                    {_t('Sign in with Blockstack')}
+                <button className="mx_Login_submit" style={{marginTop: "10px", marginBottom: "10px"}} onClick={this.onBlockstackLoginClick} disabled={!!this.state.userData} >
+                    {_t('Use your Blockstack ID')}
                 </button>
-                <button className="mx_Login_submit" onClick={this.onBlockstackSignoutClick} disabled={!this.state.userData} >
-                    {_t('Sign out')}
+                <button className="mx_Login_submit" style={{marginTop: "10px", marginBottom: "10px"}} onClick={this.onBlockstackSignoutClick} disabled={!this.state.userData} >
+                    {_t('Forget Blockstack ID')}
                 </button>
+                <div className="mx_Login_fieldlabel">{username}</div>
                 <form onSubmit={this.onSubmitForm}>                                
                 <input className="mx_Login_submit" type="submit" value={_t('Sign in')} disabled={!this.state.userData} />
                 </form>
