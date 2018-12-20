@@ -49,6 +49,19 @@ limitations under the License.
     max-height: 100%
 }
 
+.mx_Login_learn {
+    display: flex
+}
+
+.mx_Login_learn div {
+    width: 150px;
+    text-align: center
+}
+
+.mx_Login_learn img {
+    height: 43px
+}
+
 .mx_Login_support {
     text-align: center;
     font-size: 13px;
@@ -90,6 +103,25 @@ limitations under the License.
 }
 
 .mx_Login_submit:disabled {
+    opacity: 0.3;
+}
+
+.mx_Login_blockstack {
+    @mixin mx_DialogButton;
+    color: #ffffff;
+    background-color: #270F34;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.mx_Login_blockstack:hover {
+    @mixin mx_DialogButton_hover;
+    color: #ffffff;
+    background-color: #270F34;
+}
+
+.mx_Login_blockstack:disabled {
     opacity: 0.3;
 }
 

@@ -608,10 +608,6 @@ module.exports = React.createClass({
                         { errorTextSection }
                         { this.componentForStep(this.state.currentFlow) }
                         { serverConfig }
-                        <a className="mx_Login_create" onClick={this.props.onRegisterClick} href="#">
-                            { _t('Create an account') }
-                        </a>
-                        { loginAsGuestJsx }
                         <LanguageSelector />
                         <LoginFooter />
                     </div>

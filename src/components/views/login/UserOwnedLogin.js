@@ -46,8 +46,9 @@ class UserOwnedLogin extends React.Component {
             this.updateFromUserData(userData);
           } else if (blockstack.isSignInPending()) {
             blockstack.handlePendingSignIn()
-            .then(userData => {
-              this.updateFromUserData(userData);
+            .then(userData => {              
+                this.updateFromUserData(userData);
+                window.location.href = window.location.origin + window.location.pathname;                            
             });
           }
     }
@@ -76,8 +77,7 @@ class UserOwnedLogin extends React.Component {
             }
         );
     }
-
-    
+ 
     render() {
         let username = "";
         if (this.state && this.state.userData) {
@@ -85,13 +85,18 @@ class UserOwnedLogin extends React.Component {
         }
         return (
             <div>
-                <button className="mx_Login_submit" style={{marginTop: "10px", marginBottom: "10px"}} onClick={this.onBlockstackLoginClick} disabled={!!this.state.userData} >
+                <button className="mx_Login_blockstack" onClick={this.onBlockstackLoginClick} disabled={!!this.state.userData} >
                     {_t('Use your Blockstack ID')}
                 </button>
-                <button className="mx_Login_submit" style={{marginTop: "10px", marginBottom: "10px"}} onClick={this.onBlockstackSignoutClick} disabled={!this.state.userData} >
+                <button className="mx_Login_blockstack" onClick={this.onBlockstackSignoutClick} disabled={!this.state.userData} >
                     {_t('Forget Blockstack ID')}
                 </button>
-                <div className="mx_Login_fieldlabel">{username}</div>
+                {username &&(
+                    <div className="mx_Login_fieldlabel">Your Blockstack Id: {username}</div>
+                )}
+                {!username &&(
+                    <div className="mx_Login_fieldlabel"><a href="https://blockstack.org/install">Don't have Blockstack yet? Click here</a></div>
+                )}
                 <form onSubmit={this.onSubmitForm}>                                
                 <input className="mx_Login_submit" type="submit" value={_t('Sign in')} disabled={!this.state.userData} />
                 </form>
@@ -101,7 +106,8 @@ class UserOwnedLogin extends React.Component {
 }
 
 UserOwnedLogin.propTypes = {
-    onSubmit: PropTypes.func.isRequired, // fn()
+    onSubmit: PropTypes.func.isRequired, 
+    onError: PropTypes.func.isRequired,
 };
 
 module.exports = UserOwnedLogin;
