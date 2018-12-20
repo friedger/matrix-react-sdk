@@ -114,7 +114,7 @@ class UserOwnedLogin extends React.Component {
     }
 
     render() {
-        const username = "";
+        let username = "";
         if (this.state && this.state.userData) {
             username = this.state.userData.username;
         }
