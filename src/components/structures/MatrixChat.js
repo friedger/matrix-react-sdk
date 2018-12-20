@@ -1683,7 +1683,7 @@ export default React.createClass({
     },
 
     _setPageSubtitle: function(subtitle='') {
-        document.title = `Riot ${subtitle}`;
+        document.title = `${this.props.config.brand} ${subtitle}`;
     },
 
     updateStatusIndicator: function(state, prevState) {
