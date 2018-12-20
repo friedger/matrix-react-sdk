@@ -15,99 +15,147 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { _t } from '../../../languageHandler';
-import * as blockstack from 'blockstack';
-import { getPublicKeyFromPrivate } from 'blockstack/lib/keys';
+import React from "react";
+import PropTypes from "prop-types";
+import { _t } from "../../../languageHandler";
+import * as blockstack from "blockstack";
+import { getPublicKeyFromPrivate } from "blockstack/lib/keys";
 /**
  * A pure UI component which displays a username/password form.
  */
 class UserOwnedLogin extends React.Component {
-    static defaultProps = {        
-        hsDomain: "",
-    }
+    static defaultProps = {
+        hsDomain: ""
+    };
 
     constructor(props) {
         super(props);
         this.state = {
             userData: undefined,
             txid: undefined,
-            challenge: undefined,
+            challenge: undefined
         };
 
-        this.onSubmitForm = this.onSubmitForm.bind(this);   
-        this.onBlockstackSignoutClick = this.onBlockstackSignoutClick.bind(this);        
-    }   
+        this.onSubmitForm = this.onSubmitForm.bind(this);
+        this.onBlockstackSignoutClick = this.onBlockstackSignoutClick.bind(
+            this
+        );
+        this.submitUserResponse = this.submitUserResponse.bind(this);
+    }
 
     componentDidMount() {
         if (blockstack.isUserSignedIn()) {
             const userData = blockstack.loadUserData();
-            this.updateFromUserData(userData);
-          } else if (blockstack.isSignInPending()) {
-            blockstack.handlePendingSignIn()
-            .then(userData => {              
-                this.updateFromUserData(userData);
-                window.location.href = window.location.origin + window.location.pathname;                            
+            const state = this.stateFromUserData(userData);
+            this.setState(state);
+            this.submitUserResponse(
+                state.challenge,
+                state.userData.username,
+                state.txid
+            );
+        } else if (blockstack.isSignInPending()) {
+            blockstack.handlePendingSignIn().then(userData => {
+                const state = this.stateFromUserData(userData);
+                this.setState(state);
+                this.submitUserResponse(
+                    state.challenge,
+                    state.userData.username,
+                    state.txid
+                );
+                history.replaceState(
+                    {},
+                    "OI Chat",
+                    window.location.origin + window.location.pathname
+                );
             });
-          }
+        }
     }
 
-    updateFromUserData(userData) {
+    stateFromUserData(userData) {
         console.log(userData);
         const txid = getPublicKeyFromPrivate(userData.appPrivateKey);
         const challenge = "mychallengefromserver"; //TODO fetch from server
-        this.setState({userData, txid, challenge});    
+        return { userData, txid, challenge };
     }
 
     onBlockstackLoginClick(ev) {
-        blockstack.redirectToSignIn(window.location.origin + "/", window.location.origin + "/manifest.json", ["store_write", "publish_data"]);
+        blockstack.redirectToSignIn(
+            window.location.origin + "/",
+            window.location.origin + "/manifest.json",
+            ["store_write", "publish_data"]
+        );
     }
 
     onBlockstackSignoutClick(ev) {
         blockstack.signUserOut();
-        this.setState({userData: undefined});
+        this.setState({ userData: undefined });
+    }
+
+    submitUserResponse(challenge, username, txid) {
+        blockstack
+            .putFile("mxid.json", challenge, { encrypt: false, sign: true })
+            .then(() => {
+                this.props.onSubmit(
+                    username,
+                    "",
+                    "",
+                    txid + "|" + window.origin
+                );
+            });
     }
 
     onSubmitForm(ev) {
         ev.preventDefault();
-        blockstack.putFile("mxid.json", this.state.challenge, {encrypt:false, sign:true}).then(
-            () => {
-                this.props.onSubmit(this.state.userData.username, '', '', this.state.txid + "|" + window.origin);
-            }
+        this.submitUserResponse(
+            this.state.challenge,
+            this.state.username,
+            this.state.txid
         );
     }
- 
+
     render() {
-        let username = "";
+        const username = "";
         if (this.state && this.state.userData) {
             username = this.state.userData.username;
         }
+        const disableForgetBlockstackId = !this.state.userData;
         return (
             <div>
-                <button className="mx_Login_blockstack" onClick={this.onBlockstackLoginClick} disabled={!!this.state.userData} >
-                    {_t('Use your Blockstack ID')}
+                <button
+                    className="mx_Login_blockstack"
+                    onClick={this.onBlockstackLoginClick}
+                    disabled={!!this.state.userData}
+                >
+                    {_t("Use your Blockstack ID")}
                 </button>
-                <button className="mx_Login_blockstack" onClick={this.onBlockstackSignoutClick} disabled={!this.state.userData} >
-                    {_t('Forget Blockstack ID')}
+                <button
+                    className="mx_Login_blockstack"
+                    onClick={this.onBlockstackSignoutClick}
+                    disabled={disableForgetBlockstackId}
+                >
+                    {_t("Forget Blockstack ID")}
                 </button>
-                {username &&(
-                    <div className="mx_Login_fieldlabel">Your Blockstack Id: {username}</div>
+                {username && (
+                    <div className="mx_Login_fieldlabel">
+                        Your Blockstack Id: {username}
+                    </div>
                 )}
-                {!username &&(
-                    <div className="mx_Login_fieldlabel"><a href="https://blockstack.org/install">Don't have Blockstack yet? Click here</a></div>
+                {!username && (
+                    <div className="mx_Login_fieldlabel">
+                        <a href="https://blockstack.org/install">
+                            Don't have Blockstack yet? Click here
+                        </a>
+                    </div>
                 )}
-                <form onSubmit={this.onSubmitForm}>                                
-                <input className="mx_Login_submit" type="submit" value={_t('Sign in')} disabled={!this.state.userData} />
-                </form>
+                <form onSubmit={this.onSubmitForm} />
             </div>
         );
     }
 }
 
 UserOwnedLogin.propTypes = {
-    onSubmit: PropTypes.func.isRequired, 
-    onError: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    onError: PropTypes.func.isRequired
 };
 
 module.exports = UserOwnedLogin;
