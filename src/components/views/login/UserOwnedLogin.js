@@ -46,36 +46,43 @@ class UserOwnedLogin extends React.Component {
     componentDidMount() {
         if (blockstack.isUserSignedIn()) {
             const userData = blockstack.loadUserData();
-            const state = this.stateFromUserData(userData);
-            this.setState(state);
-            this.submitUserResponse(
-                state.challenge,
-                state.userData.username,
-                state.txid
-            );
-        } else if (blockstack.isSignInPending()) {
-            blockstack.handlePendingSignIn().then(userData => {
-                const state = this.stateFromUserData(userData);
+            this.stateFromUserData(userData).then(state => {
                 this.setState(state);
                 this.submitUserResponse(
                     state.challenge,
                     state.userData.username,
                     state.txid
                 );
-                history.replaceState(
-                    {},
-                    "OI Chat",
-                    window.location.origin + window.location.pathname
-                );
+            })
+        } else if (blockstack.isSignInPending()) {
+            blockstack.handlePendingSignIn().then(userData => {
+                this.stateFromUserData(userData).then(state => {
+                    this.setState(state);
+                    this.submitUserResponse(
+                        state.challenge,
+                        state.userData.username,
+                        state.txid);
+                    history.replaceState(
+                        {},
+                        "OI Chat",
+                        window.location.origin + window.location.pathname,
+                    );
+                });                
             });
         }
     }
 
     stateFromUserData(userData) {
         console.log(userData);
-        const txid = getPublicKeyFromPrivate(userData.appPrivateKey);
-        const challenge = "mychallengefromserver"; //TODO fetch from server
-        return { userData, txid, challenge };
+        const txid = getPublicKeyFromPrivate(userData.appPrivateKey) + Math.random();
+        return fetch("http://auth.openintents.org/c/" + txid, {
+            method: "POST",
+        }).then(response => {return response.json();})
+        .then(challengeObject => {
+            const challenge = challengeObject.challenge;
+            console.log("challenge", challenge);
+            return { userData, txid, challenge};
+        }); 
     }
 
     onBlockstackLoginClick(ev) {
