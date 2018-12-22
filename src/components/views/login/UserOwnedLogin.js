@@ -75,7 +75,7 @@ class UserOwnedLogin extends React.Component {
     stateFromUserData(userData) {
         console.log(userData);
         const txid = getPublicKeyFromPrivate(userData.appPrivateKey) + Math.random();
-        return fetch("http://auth.openintents.org/c/" + txid, {
+        return fetch("https://auth.openintents.org/c/" + txid, {
             method: "POST",
         }).then(response => {return response.json();})
         .then(challengeObject => {
