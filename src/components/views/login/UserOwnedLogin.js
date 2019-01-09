@@ -32,6 +32,7 @@ class UserOwnedLogin extends React.Component {
         super(props);
         this.state = {
             userData: undefined,
+            address: undefined,
             txid: undefined,
             challenge: undefined
         };
@@ -51,6 +52,7 @@ class UserOwnedLogin extends React.Component {
                 this.submitUserResponse(
                     state.challenge,
                     state.userData.username,
+                    state.address,
                     state.txid
                 );
             })
@@ -61,6 +63,7 @@ class UserOwnedLogin extends React.Component {
                     this.submitUserResponse(
                         state.challenge,
                         state.userData.username,
+                        state.address,
                         state.txid);
                     history.replaceState(
                         {},
@@ -74,6 +77,7 @@ class UserOwnedLogin extends React.Component {
 
     stateFromUserData(userData) {
         console.log(userData);
+        console.log("a", userData.identityAddress);
         const txid = getPublicKeyFromPrivate(userData.appPrivateKey) + Math.random();
         return fetch("https://auth.openintents.org/c/" + txid, {
             method: "POST",
@@ -81,7 +85,7 @@ class UserOwnedLogin extends React.Component {
         .then(challengeObject => {
             const challenge = challengeObject.challenge;
             console.log("challenge", challenge);
-            return { userData, txid, challenge};
+            return { userData, address:userData.identityAddress, txid, challenge};
         }); 
     }
 
@@ -98,15 +102,15 @@ class UserOwnedLogin extends React.Component {
         this.setState({ userData: undefined });
     }
 
-    submitUserResponse(challenge, username, txid) {
+    submitUserResponse(challenge, username, address, txid) {
         blockstack
             .putFile("mxid.json", challenge, { encrypt: false, sign: true })
             .then(() => {
                 this.props.onSubmit(
-                    username,
+                    address,
                     "",
                     "",
-                    txid + "|" + window.origin
+                    txid + "|" + window.origin + "|" + username
                 );
             });
     }
@@ -115,7 +119,8 @@ class UserOwnedLogin extends React.Component {
         ev.preventDefault();
         this.submitUserResponse(
             this.state.challenge,
-            this.state.username,
+            this.state.userData.username,
+            this.state.address,
             this.state.txid
         );
     }
@@ -124,6 +129,10 @@ class UserOwnedLogin extends React.Component {
         let username = "";
         if (this.state && this.state.userData) {
             username = this.state.userData.username;
+        }
+        let address = "";
+        if (this.state && this.state.address) {
+            address = this.state.address
         }
         const disableForgetBlockstackId = !this.state.userData;
         return (
@@ -145,6 +154,12 @@ class UserOwnedLogin extends React.Component {
                 {username && (
                     <div className="mx_Login_fieldlabel">
                         Your Blockstack Id: {username}
+                    </div>
+                )}
+                {!username && address && (
+                    <div className="mx_Login_fieldlabel">
+                        Your Blockstack Identity address: {address}.
+                        Currently, OI Chat requires a username!
                     </div>
                 )}
                 {!username && (
