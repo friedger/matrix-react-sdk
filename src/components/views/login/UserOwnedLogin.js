@@ -85,7 +85,8 @@ class UserOwnedLogin extends React.Component {
         .then(challengeObject => {
             const challenge = challengeObject.challenge;
             console.log("challenge", challenge);
-            return { userData, address:userData.identityAddress, txid, challenge};
+            const address = userData.identityAddress.toLowerCase();
+            return { userData, address, txid, challenge};
         }); 
     }
 
