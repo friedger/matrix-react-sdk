@@ -70,7 +70,7 @@ class UserOwnedLogin extends React.Component {
                         "OI Chat",
                         window.location.origin + window.location.pathname,
                     );
-                });                
+                });
             });
         }
     }
@@ -81,13 +81,13 @@ class UserOwnedLogin extends React.Component {
         const txid = getPublicKeyFromPrivate(userData.appPrivateKey) + Math.random();
         return fetch("https://auth.openintents.org/c/" + txid, {
             method: "POST",
-        }).then(response => {return response.json();})
-        .then(challengeObject => {
-            const challenge = challengeObject.challenge;
-            console.log("challenge", challenge);
-            const address = userData.identityAddress.toLowerCase();
-            return { userData, address, txid, challenge};
-        }); 
+        }).then(response => { return response.json(); })
+            .then(challengeObject => {
+                const challenge = challengeObject.challenge;
+                console.log("challenge", challenge);
+                const address = userData.identityAddress.toLowerCase();
+                return { userData, address, txid, challenge };
+            });
     }
 
     onBlockstackLoginClick(ev) {
@@ -100,7 +100,7 @@ class UserOwnedLogin extends React.Component {
 
     onBlockstackSignoutClick(ev) {
         blockstack.signUserOut();
-        this.setState({ userData: undefined });
+        this.setState({ userData: undefined, address:undefined });
     }
 
     submitUserResponse(challenge, username, address, txid) {
@@ -159,7 +159,7 @@ class UserOwnedLogin extends React.Component {
                 )}
                 {!username && address && (
                     <div className="mx_Login_fieldlabel">
-                        Your Blockstack Identity address: {address}.
+                        Your Blockstack address: {address}.
                         Currently, OI Chat requires a username!
                     </div>
                 )}
@@ -171,6 +171,15 @@ class UserOwnedLogin extends React.Component {
                     </div>
                 )}
                 <form onSubmit={this.onSubmitForm} />
+                <div>
+                    <a target="_blank" href="https://matrix.openintents.org/about">
+                        <button
+                            className="mx_Login_blockstack"
+                        >
+                            OI Chat is a matrix service ...
+                        </button>
+                    </a>
+                </div>
             </div>
         );
     }
